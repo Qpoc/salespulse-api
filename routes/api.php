@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Sales\SalesController;
 use App\Http\Controllers\Orders\OrderController;
 use App\Http\Controllers\Products\ProductController;
 
@@ -22,4 +23,10 @@ Route::prefix('v1')->group(function () {
         Route::get('{product_id}', [ProductController::class, 'show']);
     });
 
+    Route::prefix('sales')->group(function () {
+        Route::get('summary', [SalesController::class, 'summary']);
+        Route::get('top-products', [SalesController::class, 'topProducts']);
+        Route::get('top-variants', [SalesController::class, 'topVariants']);
+        Route::get('revenue-over-time', [SalesController::class, 'revenueOverTime']);
+    });
 });
