@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use App\Repositories\Eloquent\Sales\SalesRepository;
+use App\Repositories\Contracts\Sales\SalesRepositoryInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -11,7 +13,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(SalesRepositoryInterface::class, SalesRepository::class);
     }
 
     /**
