@@ -49,6 +49,8 @@ class ImportOrders extends Command
             Order::updateOrCreate([
                 'reference_id' => $externalId,
             ], [
+                'customer_id' => rand(1, 1000),
+                'status' => rand(1, 5),
                 'order_at' => $datetime,
             ]);
 

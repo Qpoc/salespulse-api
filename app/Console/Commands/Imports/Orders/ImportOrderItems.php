@@ -57,7 +57,9 @@ class ImportOrderItems extends Command
                 continue;
             }
 
-            $order->productVariants()->attach($variant->product_variant_id, ['quantity' => $qty]);
+            $order->productVariants()->attach($variant->product_variant_id, ['quantity' => $qty, 'price' => $variant->price]);
+            $order->total_price += $variant->price * $qty;
+            $order->save();
 
             $this->info("✅ Imported: Order {$externalOrderId} → {$variantId} x {$qty}");
         }
