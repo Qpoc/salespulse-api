@@ -8,7 +8,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Orders\OrderListResource;
 use App\Http\Resources\Orders\OrderDetailResource;
 
-
 class OrderController extends Controller
 {
     public function index(Request $request)
