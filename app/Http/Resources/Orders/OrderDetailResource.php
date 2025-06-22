@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Orders;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Carbon;
 
 class OrderDetailResource extends JsonResource
 {
@@ -13,20 +14,44 @@ class OrderDetailResource extends JsonResource
      */
     public function toArray($request)
     {
+
         return [
             'id' => $this->reference_id,
-            'items' => $this->productVariants->map(function($pv) {
+            'customer' => $this->customer,
+            'total_price' => (float) $this->total_price,
+            'items' => $this->productVariants->map(function ($variant) {
                 return [
-                    'product_variant_id' => $pv->product_variant_id,
-                    'product_id' => $pv->product_id,
-                    'label' => $pv->variantLabel->label,
-                    'price' => $pv->price,
-                    'quantity' => $pv->pivot->quantity,
-                    'sub_total' => $pv->price * $pv->pivot->quantity,
+                    'product' => [
+                        'name' => $variant->product->name,
+                    ],
+                    'variant' => [
+                        'id' => $variant->product_variant_id,
+                        'label' => $variant->variantLabel->label,
+                    ],
+                    'price' => (float) $variant->price,
+                    'quantity' => $variant->pivot->quantity,
                 ];
             }),
-            'total_price' => $this->productVariants->sum(fn($pv) => $pv->price * $pv->pivot->quantity),
-            'date' => $this->created_at->format('F j, Y g:i A'),
+            'status' => $this->getStatus($this->status),
+            'date' => Carbon::parse($this->order_at)->format('F j, Y g:i A'),
+            'timeline' => [
+                [
+                    'status' => $this->getStatus($this->status),
+                    'timestamp' => Carbon::parse($this->order_at)->format('F j, Y g:i A'),
+                    'description' => 'Order is being prepared',
+                ]
+            ],
         ];
+    }
+
+    protected function getStatus(int $status): string
+    {
+        return match ($status) {
+            1 => 'Pending',
+            2 => 'Processing',
+            3 => 'Shipped',
+            4 => 'Delivered',
+            5 => 'Cancelled',
+        };
     }
 }
