@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Orders;
 
+use App\Models\Products\Product;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -14,10 +15,37 @@ class OrderListResource extends JsonResource
      */
     public function toArray($request)
     {
+
         return [
             'id' => $this->reference_id,
-            'total_price' => $this->productVariants->sum(fn($pv) => $pv->price * $pv->pivot->quantity),
+            'customer' => $this->customer,
+            'total_price' => (float) $this->total_price,
+            'items' => $this->productVariants->map(function ($variant) {
+                return [
+                    'product' => [
+                        'name' => $variant->product->name,
+                    ],
+                    'variant' => [
+                        'id' => $variant->product_variant_id,
+                        'label' => $variant->variantLabel->label,
+                    ],
+                    'price' => (float) $variant->price,
+                    'quantity' => $variant->pivot->quantity,
+                ];
+            }),
+            'status' => $this->getStatus($this->status),
             'date' => Carbon::parse($this->order_at)->format('F j, Y g:i A'),
         ];
+    }
+
+    protected function getStatus(int $status): string
+    {
+        return match ($status) {
+            1 => 'Pending',
+            2 => 'Processing',
+            3 => 'Shipped',
+            4 => 'Delivered',
+            5 => 'Cancelled',
+        };
     }
 }
